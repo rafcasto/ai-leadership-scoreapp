@@ -15,7 +15,7 @@ export default function Quiz() {
   const [phase, setPhase] = useState<Phase>("lead");
   const [leadId, setLeadId] = useState<string | null>(null);
   const [lead, setLead] = useState<LeadInput>({
-    first_name: "", email: "", company: "", role_level: "", company_size: "", phone: "",
+    first_name: "", last_name: "", email: "", company: "", role_level: "", company_size: "", phone: "",
   });
   const [leadErrors, setLeadErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
@@ -40,6 +40,7 @@ export default function Quiz() {
   const validateLead = (): boolean => {
     const e: Record<string, string> = {};
     if (!lead.first_name.trim()) e.first_name = "Required";
+    if (!lead.last_name.trim()) e.last_name = "Required";
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(lead.email)) e.email = "Enter a valid work email";
     if (!lead.company.trim()) e.company = "Required";
     if (!lead.role_level) e.role_level = "Select one";
@@ -145,12 +146,18 @@ export default function Quiz() {
                   onChange={(e) => setLead({ ...lead, first_name: e.target.value })}
                   placeholder="Jane" />
               </Field>
-              <Field label="Work email" required error={leadErrors.email}>
-                <input type="email" value={lead.email}
-                  onChange={(e) => setLead({ ...lead, email: e.target.value })}
-                  placeholder="jane@company.com" />
+              <Field label="Last name" required error={leadErrors.last_name}>
+                <input value={lead.last_name}
+                  onChange={(e) => setLead({ ...lead, last_name: e.target.value })}
+                  placeholder="Doe" />
               </Field>
             </div>
+
+            <Field label="Work email" required error={leadErrors.email}>
+              <input type="email" value={lead.email}
+                onChange={(e) => setLead({ ...lead, email: e.target.value })}
+                placeholder="jane@company.com" />
+            </Field>
 
             <Field label="Company" required error={leadErrors.company}>
               <input value={lead.company}

@@ -117,6 +117,7 @@ export interface SiteContent {
 // ---- Lead + submission shapes (DB) ----
 export interface LeadInput {
   first_name: string;
+  last_name: string;
   email: string;
   company: string;
   role_level: string;

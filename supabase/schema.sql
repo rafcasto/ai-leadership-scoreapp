@@ -31,6 +31,7 @@ create policy "site_content public read"
 create table if not exists public.leads (
   id           uuid primary key default gen_random_uuid(),
   first_name   text not null,
+  last_name    text,
   email        text not null,
   company      text,
   role_level   text,
@@ -52,6 +53,7 @@ create table if not exists public.submissions (
   id               uuid primary key default gen_random_uuid(),
   lead_id          uuid references public.leads (id) on delete set null,
   first_name       text,
+  last_name        text,
   email            text,
   company          text,
   role_level       text,

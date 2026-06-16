@@ -37,29 +37,32 @@ export default async function handler(req: any, res: any) {
       lead = data;
     }
 
-    const { data: sub, error } = await db
-      .from("submissions")
-      .insert({
-        lead_id: leadId || null,
-        first_name: lead?.first_name || null,
-        email: lead?.email || null,
-        company: lead?.company || null,
-        role_level: lead?.role_level || null,
-        company_size: lead?.company_size || null,
-        knowledge_score: r.knowledge,
-        mindset_score: r.mindset,
-        skills_score: r.skills,
-        leadership_score: r.leadership,
-        overall_score: r.overall,
-        overall_tier: r.tier,
-        lowest_category: r.lowestCategoryLabel,
-        not_sure_count: r.notSureCount,
-        ai_interests: r.interests,
-        answers,
-      })
-      .select("id")
-      .single();
+    const subRow: Record<string, any> = {
+      lead_id: leadId || null,
+      first_name: lead?.first_name || null,
+      last_name: lead?.last_name || null,
+      email: lead?.email || null,
+      company: lead?.company || null,
+      role_level: lead?.role_level || null,
+      company_size: lead?.company_size || null,
+      knowledge_score: r.knowledge,
+      mindset_score: r.mindset,
+      skills_score: r.skills,
+      leadership_score: r.leadership,
+      overall_score: r.overall,
+      overall_tier: r.tier,
+      lowest_category: r.lowestCategoryLabel,
+      not_sure_count: r.notSureCount,
+      ai_interests: r.interests,
+      answers,
+    };
+    let { data: sub, error } = await db.from("submissions").insert(subRow).select("id").single();
+    if (error && /last_name/i.test(error.message || "")) {
+      delete subRow.last_name;
+      ({ data: sub, error } = await db.from("submissions").insert(subRow).select("id").single());
+    }
     if (error) throw error;
+    if (!sub) throw new Error("Could not save submission.");
 
     const reportUrl = origin ? `${origin}/results/${sub.id}` : `/results/${sub.id}`;
 

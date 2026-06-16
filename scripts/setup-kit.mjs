@@ -40,6 +40,7 @@ async function kit(path, init = {}) {
 
 // [expectedKey, label]
 const FIELDS = [
+  ["last_name", "Last name"],
   ["company_name", "Company name"],
   ["role_level", "Role level"],
   ["company_size", "Company size"],
