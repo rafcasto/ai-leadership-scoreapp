@@ -1,4 +1,7 @@
 // AI Dojo brand marks — pure inline SVG/CSS, no raster assets.
+import BenchmarkChart from "./BenchmarkChart";
+import type { CategoryKey } from "../../shared/types";
+import type { Benchmark } from "../lib/api";
 
 export function EnsoMark({ size = 28, color = "var(--jh-red)" }: { size?: number; color?: string }) {
   // An "enso" — the zen/dojo open brush-circle. Discipline + mastery.
@@ -28,37 +31,42 @@ export function Logo({ variant = "dark", size = 22 }: { variant?: "dark" | "ligh
   );
 }
 
-// Professional hero visual — a premium preview of the readiness report card.
+// Hero visual — a preview of the actual report a leader receives: the same
+// benchmark chart component used on the results page, with sample scores.
 export function HeroPreview() {
-  const cats = [
-    { label: "Knowledge", v: 78 },
-    { label: "Mindset", v: 64 },
-    { label: "Skills", v: 58 },
-    { label: "Leadership", v: 86 },
-  ];
+  const scores: Record<CategoryKey, number | null> = {
+    knowledge: 4.3,
+    mindset: 3.9,
+    skills: 3.4,
+    leadership: 4.1,
+  };
+  const labels: Record<CategoryKey, string> = {
+    knowledge: "Knowledge",
+    mindset: "Mindset",
+    skills: "Skills",
+    leadership: "Leadership",
+  };
+  // sample aggregate so the company-average + quartile lines render too
+  const benchmark: Benchmark = {
+    n: 128,
+    knowledge_avg: 3.6, mindset_avg: 3.2, skills_avg: 3.3, leadership_avg: 3.5,
+    knowledge_p25: 2.9, knowledge_p75: 4.2,
+    mindset_p25: 2.6, mindset_p75: 4.0,
+    skills_p25: 2.7, skills_p75: 3.9,
+    leadership_p25: 3.0, leadership_p75: 4.4,
+  };
+
   return (
     <div className="hero-visual" aria-hidden>
-      <div className="hero-visual__card">
-        <div className="hero-visual__head">
-          <span className="hero-visual__eyebrow">AI Readiness Report</span>
-          <span className="hero-visual__badge">AI Enabled</span>
+      <div className="hero-report-card">
+        <div className="hrc-head">
+          <span className="hero-visual__eyebrow">AI Leadership Readiness Report</span>
+          <span className="tier-badge">AI Enabled</span>
         </div>
-        <div className="hero-visual__score">
-          3.8<span>/5</span>
-        </div>
-        <div className="hero-visual__bars">
-          {cats.map((c) => (
-            <div className="hv-row" key={c.label}>
-              <span className="hv-row__label">{c.label}</span>
-              <span className="hv-row__track">
-                <span className="hv-row__fill" style={{ width: `${c.v}%` }} />
-              </span>
-              <span className="hv-row__val">{(c.v / 20).toFixed(1)}</span>
-            </div>
-          ))}
-        </div>
-        <div className="hero-visual__foot">
-          <span className="hv-dot" /> Biggest opportunity: <strong>&nbsp;Skills</strong>
+        <div className="hrc-score">3.9<span>/5</span></div>
+        <BenchmarkChart scores={scores} benchmark={benchmark} labels={labels} />
+        <div className="hrc-foot">
+          <span className="hv-dot" /> Biggest opportunity:<strong>&nbsp;Skills</strong>
         </div>
       </div>
     </div>

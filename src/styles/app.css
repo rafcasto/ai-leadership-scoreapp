@@ -274,3 +274,17 @@ em { font-style: italic; color: var(--fg-3); }
   border-top: 1px solid var(--jh-line); font-size: 13px; color: var(--fg-3);
 }
 .hv-dot { width: 8px; height: 8px; border-radius: 999px; background: var(--jh-red); display: inline-block; }
+
+/* ---------- Hero report card (mirrors the real results report) ---------- */
+.hero-report-card {
+  position: relative; z-index: 1; width: 100%; max-width: 500px;
+  background: #fff; border: 1px solid var(--jh-line); border-radius: 20px;
+  padding: 22px 22px 18px; box-shadow: 0 24px 60px rgba(19,23,34,.16);
+}
+.hrc-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.hrc-score { font-family: var(--font-display); font-size: 44px; font-weight: 800; color: var(--jh-ink); line-height: 1; margin-bottom: 6px; }
+.hrc-score span { font-size: 20px; color: var(--fg-3); font-weight: 600; }
+.hrc-foot { display: flex; align-items: center; gap: 6px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--jh-line); font-size: 13px; color: var(--fg-3); }
+/* flatten the embedded benchmark chart so it isn't a card-in-card */
+.hero-report-card .chart-card { border: 0; box-shadow: none; padding: 0; border-radius: 0; background: transparent; }
+.hero-report-card .chart-legend { margin-top: 10px; font-size: 11px; gap: 10px 14px; }
