@@ -8,7 +8,7 @@ export const defaultContent: SiteContent = {
     brandName: "AI Dojo",
     productName: "The AI Leadership Readiness Scorecard",
     tagline: "Are your leaders ready to lead with AI?",
-    footerNote: "Share the ❤ but don't steal the IP.",
+    footerNote: "Helping senior leaders turn AI into measurable productivity gains.",
     debriefUrl: "#book-a-debrief",
   },
 
@@ -18,7 +18,7 @@ export const defaultContent: SiteContent = {
     h1Accent: "AI",
     h1Post: "?",
     lede:
-      "Answer 11 quick questions to score your organization across the four areas that determine AI readiness — <strong>Knowledge, Mindset, Skills, and Leadership</strong> — and get a personalized report with your biggest opportunity and concrete next steps.",
+      "Answer 11 quick questions to see how ready your leaders are to turn AI into real <strong>productivity gains</strong> — scored across Knowledge, Mindset, Skills, and Leadership — and get a personalized report with your biggest opportunity and concrete next steps.",
     primaryCta: "Start the Scorecard",
     primaryCtaSub: "Takes less than 3 minutes",
     metricA: "11",
@@ -45,7 +45,7 @@ export const defaultContent: SiteContent = {
     connectionEyebrow: "Why now",
     connectionTitle: "Most leaders know AI matters — few know where they actually stand",
     connectionBody:
-      "Middle and senior leaders feel the pressure but rarely have a clear read on their organization's real position. This scorecard meets your leaders where they are today and shows the fastest path forward.",
+      "Senior leaders feel the pressure to deliver AI-driven productivity, but rarely have a clear read on where their organization actually stands. This scorecard meets your leaders where they are today and shows the fastest path to measurable gains.",
     finalCtaTitle: "Get your AI Readiness Report",
     finalCtaBody:
       "Finish to unlock your personalized AI Readiness Report (PDF) you can share with your leadership team.",

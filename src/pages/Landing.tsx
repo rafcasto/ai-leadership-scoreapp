@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useContent } from "../lib/useContent";
 import { Header, Footer, PageLoading } from "../components/Layout";
+import { HeroPreview } from "../components/Brand";
 
 export default function Landing() {
   const { content } = useContent();
@@ -22,7 +23,6 @@ export default function Landing() {
 
       {/* Hero */}
       <section className="hero">
-        <img className="hero__hand-bg" src="/brand/logo-hand.png" alt="" aria-hidden />
         <div className="container hero__inner">
           <div>
             <div className="hero__tagline">{L.eyebrow}</div>
@@ -46,9 +46,7 @@ export default function Landing() {
               <div><b>{L.metricC}</b> {L.metricCLabel}</div>
             </div>
           </div>
-          <div className="hero__image">
-            <img src="/brand/hero-hands-together.png" alt="Leaders collaborating" />
-          </div>
+          <HeroPreview />
         </div>
       </section>
 

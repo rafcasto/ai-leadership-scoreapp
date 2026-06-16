@@ -17,11 +17,11 @@
 @font-face { font-family: "Poppins"; font-style: normal; font-weight: 800; font-display: swap; src: url("/fonts/Poppins-ExtraBold.ttf") format("truetype"); }
 
 :root {
-  --jh-red:        #c2001f;
-  --jh-red-hover:  #8a0016;
-  --jh-ink:        #191c27;
-  --jh-red-soft:   #f6e0e3;
-  --jh-blue-grey:  #e2ebfb;
+  --jh-red:        #2b4bd4;        /* AI Dojo primary accent (deep indigo-blue) */
+  --jh-red-hover:  #1e379f;
+  --jh-ink:        #131722;
+  --jh-red-soft:   #eceffb;        /* accent @ low alpha, baked */
+  --jh-blue-grey:  #eaf0fb;
 
   --rb-red:         #c2001f;
   --rb-orange:      #f08a1c;
@@ -65,7 +65,7 @@
   --shadow-1: 0 1px 2px rgba(25,28,39,.06);
   --shadow-2: 0 4px 12px rgba(25,28,39,.08);
   --shadow-3: 0 10px 24px rgba(25,28,39,.10);
-  --shadow-cta: 0 6px 18px rgba(194,0,31,.25);
+  --shadow-cta: 0 6px 18px rgba(43,75,212,.28);
 
   --ease-out: cubic-bezier(.2,.7,.2,1);
   --dur-1: 120ms; --dur-2: 200ms; --dur-3: 320ms;

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { api, AdminStats, AdminSubmissionRow } from "../lib/api";
 import { supabase, getAccessToken } from "../lib/supabaseClient";
+import { Logo } from "../components/Brand";
 import type { SiteContent } from "../../shared/types";
 
 // Resolve a fresh Supabase access token, then call an admin API method with it.
@@ -51,7 +52,7 @@ function Login() {
   return (
     <div className="admin-shell" style={{ display: "grid", placeItems: "center", minHeight: "100vh" }}>
       <form className="admin-card" style={{ width: 380 }} onSubmit={submit}>
-        <img src="/brand/logo-jobhackers.png" alt="" style={{ height: 30, marginBottom: 18 }} />
+        <div style={{ marginBottom: 18 }}><Logo size={22} /></div>
         <h3 style={{ marginBottom: 6 }}>Scorecard Admin</h3>
         <p className="muted" style={{ fontSize: 14, marginBottom: 18 }}>
           Sign in with your Supabase admin account to edit copy, questions, and view results.
