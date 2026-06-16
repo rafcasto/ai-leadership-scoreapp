@@ -1,0 +1,74 @@
+/* =============================================================
+   JobHackers.Global — Design Tokens (adapted for the Scorecard app)
+   Fonts served locally from /public/fonts. Tokens copied from the
+   design system's colors_and_type.css.
+============================================================= */
+
+/* ---------- Local @font-face ---------- */
+@font-face { font-family: "Roboto"; font-style: normal; font-weight: 400; font-display: swap; src: url("/fonts/Roboto-Regular.ttf") format("truetype"); }
+@font-face { font-family: "Roboto"; font-style: normal; font-weight: 500; font-display: swap; src: url("/fonts/Roboto-Medium.ttf") format("truetype"); }
+@font-face { font-family: "Roboto"; font-style: normal; font-weight: 600; font-display: swap; src: url("/fonts/Roboto-Medium.ttf") format("truetype"); }
+@font-face { font-family: "Roboto"; font-style: normal; font-weight: 700; font-display: swap; src: url("/fonts/Roboto-Bold.ttf") format("truetype"); }
+
+@font-face { font-family: "Poppins"; font-style: normal; font-weight: 400; font-display: swap; src: url("/fonts/Poppins-Regular.ttf") format("truetype"); }
+@font-face { font-family: "Poppins"; font-style: normal; font-weight: 500; font-display: swap; src: url("/fonts/Poppins-Medium.ttf") format("truetype"); }
+@font-face { font-family: "Poppins"; font-style: normal; font-weight: 600; font-display: swap; src: url("/fonts/Poppins-SemiBold.ttf") format("truetype"); }
+@font-face { font-family: "Poppins"; font-style: normal; font-weight: 700; font-display: swap; src: url("/fonts/Poppins-Bold.ttf") format("truetype"); }
+@font-face { font-family: "Poppins"; font-style: normal; font-weight: 800; font-display: swap; src: url("/fonts/Poppins-ExtraBold.ttf") format("truetype"); }
+
+:root {
+  --jh-red:        #c2001f;
+  --jh-red-hover:  #8a0016;
+  --jh-ink:        #191c27;
+  --jh-red-soft:   #f6e0e3;
+  --jh-blue-grey:  #e2ebfb;
+
+  --rb-red:         #c2001f;
+  --rb-orange:      #f08a1c;
+  --rb-yellow:      #f5d000;
+  --rb-green-light: #6bbf6b;
+  --rb-green-dark:  #2f7a3a;
+  --rb-blue:        #0033cc;
+  --rb-violet:      #7a1ec2;
+
+  --jh-white:  #ffffff;
+  --jh-paper:  #fafafa;
+  --jh-mist:   #f3f5fa;
+  --jh-line:   #e6e8ef;
+  --jh-line-2: #d4d8e2;
+  --jh-mute-1: #6b7280;
+  --jh-mute-2: #9aa0ad;
+
+  --fg-1: var(--jh-ink);
+  --fg-2: #3a3f4d;
+  --fg-3: var(--jh-mute-1);
+  --fg-4: var(--jh-mute-2);
+  --fg-accent: var(--jh-red);
+  --fg-on-dark: var(--jh-white);
+
+  --bg-page: var(--jh-white);
+  --bg-soft: var(--jh-paper);
+  --bg-card: var(--jh-white);
+  --bg-tint: var(--jh-blue-grey);
+  --bg-tint-red: var(--jh-red-soft);
+  --bg-dark: var(--jh-ink);
+
+  --font-display: "Poppins", "Helvetica Neue", Arial, sans-serif;
+  --font-body:    "Roboto", "Helvetica Neue", Arial, sans-serif;
+
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px; --space-9: 96px;
+
+  --radius-xs: 4px; --radius-sm: 8px; --radius-md: 12px;
+  --radius-lg: 16px; --radius-xl: 24px; --radius-pill: 999px;
+
+  --shadow-1: 0 1px 2px rgba(25,28,39,.06);
+  --shadow-2: 0 4px 12px rgba(25,28,39,.08);
+  --shadow-3: 0 10px 24px rgba(25,28,39,.10);
+  --shadow-cta: 0 6px 18px rgba(194,0,31,.25);
+
+  --ease-out: cubic-bezier(.2,.7,.2,1);
+  --dur-1: 120ms; --dur-2: 200ms; --dur-3: 320ms;
+
+  --content-max: 1120px;
+}

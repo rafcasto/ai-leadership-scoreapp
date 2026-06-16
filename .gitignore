@@ -1,0 +1,21 @@
+# Secrets / environment
+.env
+.env.local
+.env*.local
+
+# Dependencies
+node_modules/
+
+# Build output
+.next/
+dist/
+out/
+.vercel/
+
+# Design handoff bundle (large; keep out of git)
+design-bundle/
+design-bundle.download
+
+# Misc
+.DS_Store
+*.log
