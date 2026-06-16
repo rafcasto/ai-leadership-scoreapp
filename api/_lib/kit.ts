@@ -90,3 +90,40 @@ export async function applyTags(email: string, names: string[]): Promise<void> {
 export function kitEnabled(): boolean {
   return !!apiKey();
 }
+
+// Resolve a sequence id by name (cached), then subscribe people directly — this
+// lets the app trigger the drip itself, with no Kit visual automation required.
+const seqCache = new Map<string, number>();
+let seqLoaded = false;
+async function sequenceIdByName(name: string): Promise<number | null> {
+  const key = name.toLowerCase();
+  if (seqCache.has(key)) return seqCache.get(key)!;
+  try {
+    if (!seqLoaded) {
+      const list = await kit(`/sequences?per_page=500`);
+      for (const s of list?.sequences || []) {
+        if (s?.name && s?.id) seqCache.set(String(s.name).toLowerCase(), s.id);
+      }
+      seqLoaded = true;
+    }
+    return seqCache.get(key) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export async function subscribeToSequences(
+  email: string,
+  names: string[]
+): Promise<void> {
+  for (const name of names) {
+    const id = await sequenceIdByName(name);
+    if (!id) continue;
+    try {
+      await kit(`/sequences/${id}/subscribers`, {
+        method: "POST",
+        body: JSON.stringify({ email_address: email }),
+      });
+    } catch {}
+  }
+}

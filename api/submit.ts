@@ -1,11 +1,11 @@
 import { admin } from "./_lib/supabase.js";
 import { loadContent } from "./_lib/content.js";
 import { computeScores, AnswerMap } from "../shared/scoring.js";
-import { applyTags, upsertSubscriber, kitEnabled } from "./_lib/kit.js";
+import { applyTags, upsertSubscriber, kitEnabled, subscribeToSequences } from "./_lib/kit.js";
 
 // POST /api/submit — score the completed scorecard, persist it, update the
-// lead + Kit subscriber (scores, tier, focus). Returns the submission id so the
-// client can route to /results/:id.
+// lead + Kit subscriber (scores, tier, focus), and trigger the drip sequences.
+// Returns the submission id so the client can route to /results/:id.
 export default async function handler(req: any, res: any) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method not allowed" });
@@ -102,6 +102,14 @@ export default async function handler(req: any, res: any) {
           `Tier: ${r.tier}`,
           `Focus: ${r.lowestCategoryLabel}`,
         ]);
+        // Trigger the drip directly — no Kit visual automation needed: the
+        // results email + the tier-appropriate nurture track. (Names must match
+        // the sequences created by scripts/create-sequences.mjs, en-dash and all.)
+        const track =
+          r.tier === "AI Enabled" || r.tier === "AI-First Leaders"
+            ? "Track B – Scale the Advantage"
+            : "Track A – Build the Foundations";
+        await subscribeToSequences(lead.email, ["Scorecard – Results", track]);
       } catch {}
     }
 
