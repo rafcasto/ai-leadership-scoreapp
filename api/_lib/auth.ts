@@ -1,4 +1,4 @@
-import { admin } from "./supabase";
+import { admin } from "./supabase.js";
 
 // Admin authentication now lives in Supabase Auth. The client signs in with a
 // Supabase user (email/password) and sends the access token as a Bearer header.

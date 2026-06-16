@@ -1,6 +1,6 @@
-import { admin } from "./supabase";
-import { defaultContent } from "../../shared/defaultContent";
-import type { SiteContent } from "../../shared/types";
+import { admin } from "./supabase.js";
+import { defaultContent } from "../../shared/defaultContent.js";
+import type { SiteContent } from "../../shared/types.js";
 
 const KEY = "site";
 

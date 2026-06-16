@@ -1,6 +1,6 @@
-import { requireAdmin } from "../_lib/auth";
-import { loadContent, saveContent } from "../_lib/content";
-import type { SiteContent } from "../../shared/types";
+import { requireAdmin } from "../_lib/auth.js";
+import { loadContent, saveContent } from "../_lib/content.js";
+import type { SiteContent } from "../../shared/types.js";
 
 // GET  /api/admin/content → full editable content (admin only)
 // PUT  /api/admin/content { content } → save (admin only)

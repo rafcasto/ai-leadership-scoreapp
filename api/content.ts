@@ -1,4 +1,4 @@
-import { loadContent } from "./_lib/content";
+import { loadContent } from "./_lib/content.js";
 
 // GET /api/content → the public site + quiz content (admin overrides applied).
 export default async function handler(req: any, res: any) {

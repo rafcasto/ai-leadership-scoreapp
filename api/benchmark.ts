@@ -1,4 +1,4 @@
-import { admin } from "./_lib/supabase";
+import { admin } from "./_lib/supabase.js";
 
 // GET /api/benchmark — aggregate company average + high/low quartile lines for
 // the benchmark chart. Returns nulls when there isn't enough data yet.

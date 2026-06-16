@@ -1,5 +1,5 @@
-import { requireAdmin } from "../_lib/auth";
-import { admin } from "../_lib/supabase";
+import { requireAdmin } from "../_lib/auth.js";
+import { admin } from "../_lib/supabase.js";
 
 // GET /api/admin/submissions → recent submissions + headline stats (admin only)
 export default async function handler(req: any, res: any) {

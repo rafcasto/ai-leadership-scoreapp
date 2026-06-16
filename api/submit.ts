@@ -1,7 +1,7 @@
-import { admin } from "./_lib/supabase";
-import { loadContent } from "./_lib/content";
-import { computeScores, AnswerMap } from "../shared/scoring";
-import { applyTags, upsertSubscriber, kitEnabled } from "./_lib/kit";
+import { admin } from "./_lib/supabase.js";
+import { loadContent } from "./_lib/content.js";
+import { computeScores, AnswerMap } from "../shared/scoring.js";
+import { applyTags, upsertSubscriber, kitEnabled } from "./_lib/kit.js";
 
 // POST /api/submit — score the completed scorecard, persist it, update the
 // lead + Kit subscriber (scores, tier, focus). Returns the submission id so the

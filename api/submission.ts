@@ -1,4 +1,4 @@
-import { admin } from "./_lib/supabase";
+import { admin } from "./_lib/supabase.js";
 
 // GET /api/submission?id=... — fetch one completed scorecard for the results
 // page. Returns only display-safe fields (no answers, no email).

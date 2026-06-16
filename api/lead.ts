@@ -1,6 +1,6 @@
-import { admin } from "./_lib/supabase";
-import { applyTags, upsertSubscriber, kitEnabled } from "./_lib/kit";
-import type { LeadInput } from "../shared/types";
+import { admin } from "./_lib/supabase.js";
+import { applyTags, upsertSubscriber, kitEnabled } from "./_lib/kit.js";
+import type { LeadInput } from "../shared/types.js";
 
 // POST /api/lead — capture the lead BEFORE question 1 (enables abandonment
 // recovery). Creates the lead in Supabase and pushes to Kit, tagged "Started".
