@@ -11,11 +11,14 @@ that trigger them (Part 2), then go live (Part 3).
 
 ---
 
-# PART 1 — Create the 4 sequences
+# PART 1 — The 4 sequences (already created via API ✅)
 
-Kit → **Sequences → + New sequence**. Name it, then **+ Add email** for each
-email below. For each email set the **Delay** (the "Send … after previous"
-field), paste the **Subject**, set **Preview text**, and paste the **Body**.
+`scripts/create-sequences.mjs` already created all 4 sequences and 11 emails in
+your Kit account (as **drafts**). In Kit → **Sequences**, for each email you only
+need to: (1) replace `[LINK]` / `[OFFER TBD]` with your real booking URL, and
+(2) **Publish** the email. The full copy is below for reference / editing.
+
+(Re-run `node scripts/create-sequences.mjs` anytime — it is idempotent.)
 
 ---
 
