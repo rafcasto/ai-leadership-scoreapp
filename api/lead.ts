@@ -45,22 +45,23 @@ export default async function handler(req: any, res: any) {
     if (error) throw error;
     if (!data) throw new Error("Could not save lead.");
 
-    // Best-effort Kit sync (don't block on failure)
+    // Kit sync — AWAIT it. On serverless the function is frozen the moment the
+    // response is sent, so fire-and-forget work never runs. Wrapped in try/catch
+    // so a Kit hiccup never breaks the user's flow.
     if (kitEnabled()) {
-      upsertSubscriber({
-        email,
-        firstName: first,
-        fields: {
-          last_name: last,
-          company_name: body.company,
-          role_level: body.role_level,
-          company_size: body.company_size,
-        },
-      })
-        .then(() =>
-          applyTags(email, ["Source: AI Readiness Scorecard", "Scorecard Started"])
-        )
-        .catch(() => {});
+      try {
+        await upsertSubscriber({
+          email,
+          firstName: first,
+          fields: {
+            last_name: last,
+            company_name: body.company,
+            role_level: body.role_level,
+            company_size: body.company_size,
+          },
+        });
+        await applyTags(email, ["Source: AI Readiness Scorecard", "Scorecard Started"]);
+      } catch {}
     }
 
     res.status(200).json({ leadId: data.id });

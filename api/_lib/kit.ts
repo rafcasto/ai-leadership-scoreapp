@@ -56,24 +56,24 @@ export async function tagSubscriber(
   });
 }
 
-// Resolve (or create) a tag id by name, cached in-process.
+// Resolve (or create) a tag id by name, cached in-process (by lowercase name).
 const tagCache = new Map<string, number>();
+let tagsLoaded = false;
 export async function ensureTag(name: string): Promise<number | null> {
-  if (tagCache.has(name)) return tagCache.get(name)!;
+  const key = name.toLowerCase();
+  if (tagCache.has(key)) return tagCache.get(key)!;
   try {
-    const list = await kit(`/tags?per_page=500`);
-    const found = (list?.tags || []).find(
-      (t: any) => t.name?.toLowerCase() === name.toLowerCase()
-    );
-    let id = found?.id;
-    if (!id) {
-      const created = await kit(`/tags`, {
-        method: "POST",
-        body: JSON.stringify({ name }),
-      });
-      id = created?.tag?.id;
+    if (!tagsLoaded) {
+      const list = await kit(`/tags?per_page=500`);
+      for (const t of list?.tags || []) {
+        if (t?.name && t?.id) tagCache.set(String(t.name).toLowerCase(), t.id);
+      }
+      tagsLoaded = true;
+      if (tagCache.has(key)) return tagCache.get(key)!;
     }
-    if (id) tagCache.set(name, id);
+    const created = await kit(`/tags`, { method: "POST", body: JSON.stringify({ name }) });
+    const id = created?.tag?.id;
+    if (id) tagCache.set(key, id);
     return id || null;
   } catch {
     return null;

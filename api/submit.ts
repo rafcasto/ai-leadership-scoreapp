@@ -77,31 +77,32 @@ export default async function handler(req: any, res: any) {
         .eq("id", leadId);
     }
 
-    // Best-effort Kit completion sync
+    // Kit completion sync — AWAIT it. On serverless the function is frozen the
+    // moment the response is sent, so fire-and-forget work never runs. Wrapped
+    // in try/catch so a Kit hiccup never breaks the user's results.
     if (kitEnabled() && lead?.email) {
-      upsertSubscriber({
-        email: lead.email,
-        firstName: lead.first_name,
-        fields: {
-          ai_overall_score: r.overall,
-          ai_overall_tier: r.tier,
-          knowledge_score: r.knowledge ?? "",
-          mindset_score: r.mindset ?? "",
-          skills_score: r.skills ?? "",
-          leadership_score: r.leadership ?? "",
-          lowest_category: r.lowestCategoryLabel,
-          ai_interests: r.interests.join(", "),
-          report_url: reportUrl,
-        },
-      })
-        .then(() =>
-          applyTags(lead.email, [
-            "Scorecard Completed",
-            `Tier: ${r.tier}`,
-            `Focus: ${r.lowestCategoryLabel}`,
-          ])
-        )
-        .catch(() => {});
+      try {
+        await upsertSubscriber({
+          email: lead.email,
+          firstName: lead.first_name,
+          fields: {
+            ai_overall_score: r.overall,
+            ai_overall_tier: r.tier,
+            knowledge_score: r.knowledge ?? "",
+            mindset_score: r.mindset ?? "",
+            skills_score: r.skills ?? "",
+            leadership_score: r.leadership ?? "",
+            lowest_category: r.lowestCategoryLabel,
+            ai_interests: r.interests.join(", "),
+            report_url: reportUrl,
+          },
+        });
+        await applyTags(lead.email, [
+          "Scorecard Completed",
+          `Tier: ${r.tier}`,
+          `Focus: ${r.lowestCategoryLabel}`,
+        ]);
+      } catch {}
     }
 
     res.status(200).json({ submissionId: sub.id, result: r, reportUrl });
