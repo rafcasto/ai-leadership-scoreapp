@@ -108,7 +108,7 @@ npx esbuild test/server-smoke.ts --bundle --platform=node --format=esm --package
   `ai_overall_tier`, `lowest_category`, `report_url`, etc.; add `Scorecard
   Completed` + the one `Tier:` tag + the one `Focus:` tag.
 
-Full automation + email build plan: [`kit-automations.md`](kit-automations.md).
+Full step-by-step build plan (paste-ready emails + automations): [`kit-build-guide.md`](kit-build-guide.md). Reference spec: [`kit-automations.md`](kit-automations.md).
 The 11 emails are also created as **draft broadcasts** in Kit via
 [`scripts/create-broadcasts.mjs`](scripts/create-broadcasts.mjs).
 
