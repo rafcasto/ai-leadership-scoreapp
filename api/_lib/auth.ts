@@ -1,74 +1,48 @@
-import crypto from "crypto";
+import { admin } from "./supabase";
 
-// Lightweight signed admin session token (HMAC). No external dep.
-// Token = base64url(payloadJson) + "." + base64url(hmac).
+// Admin authentication now lives in Supabase Auth. The client signs in with a
+// Supabase user (email/password) and sends the access token as a Bearer header.
+// We verify the token server-side and authorize the user as an admin if either:
+//   * their JWT app_metadata.role === "admin", or
+//   * their email is in the ADMIN_EMAIL allowlist (comma-separated).
 
-function secret(): string {
-  return (
-    process.env.ADMIN_SESSION_SECRET ||
-    process.env.ADMIN_PASSWORD ||
-    "change-me-in-prod"
-  );
+function adminEmails(): string[] {
+  return (process.env.ADMIN_EMAIL || "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
 }
 
-function b64url(buf: Buffer | string): string {
-  return Buffer.from(buf)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
+function bearer(req: any): string {
+  const h = req.headers["authorization"] || req.headers["Authorization"] || "";
+  return String(h).replace(/^Bearer\s+/i, "").trim();
 }
 
-function sign(payload: string): string {
-  return b64url(
-    crypto.createHmac("sha256", secret()).update(payload).digest()
-  );
-}
-
-export function issueToken(email: string): string {
-  const payload = JSON.stringify({
-    email,
-    exp: Date.now() + 1000 * 60 * 60 * 12, // 12h
-  });
-  const p = b64url(payload);
-  return `${p}.${sign(p)}`;
-}
-
-export function verifyToken(token?: string | null): boolean {
-  if (!token) return false;
-  const [p, sig] = token.split(".");
-  if (!p || !sig) return false;
-  if (sign(p) !== sig) return false;
+export async function requireAdmin(req: any, res: any): Promise<boolean> {
+  const token = bearer(req);
+  if (!token) {
+    res.status(401).json({ error: "Not signed in." });
+    return false;
+  }
   try {
-    const data = JSON.parse(Buffer.from(p, "base64").toString());
-    return typeof data.exp === "number" && data.exp > Date.now();
+    const { data, error } = await admin().auth.getUser(token);
+    const user = data?.user;
+    if (error || !user) {
+      res.status(401).json({ error: "Session expired — please sign in again." });
+      return false;
+    }
+    const role = (user.app_metadata as any)?.role;
+    const allow = adminEmails();
+    const isAdmin =
+      role === "admin" ||
+      (allow.length > 0 && allow.includes((user.email || "").toLowerCase()));
+    if (!isAdmin) {
+      res.status(403).json({ error: "This account is not authorized for admin." });
+      return false;
+    }
+    return true;
   } catch {
+    res.status(401).json({ error: "Could not verify session." });
     return false;
   }
-}
-
-export function requireAdmin(req: any, res: any): boolean {
-  const header = req.headers["authorization"] || "";
-  const token = header.replace(/^Bearer\s+/i, "");
-  if (!verifyToken(token)) {
-    res.status(401).json({ error: "Unauthorized" });
-    return false;
-  }
-  return true;
-}
-
-export function checkCredentials(email: string, password: string): boolean {
-  const okEmail = (process.env.ADMIN_EMAIL || "").trim().toLowerCase();
-  const okPass = process.env.ADMIN_PASSWORD || "";
-  // constant-time-ish compare
-  const a = (email || "").trim().toLowerCase();
-  return (
-    !!okEmail &&
-    !!okPass &&
-    a === okEmail &&
-    crypto.timingSafeEqual(
-      Buffer.from(password.padEnd(64).slice(0, 64)),
-      Buffer.from(okPass.padEnd(64).slice(0, 64))
-    )
-  );
 }

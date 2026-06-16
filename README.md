@@ -6,8 +6,8 @@ plus an **admin** panel to edit every piece of copy (landing, questions, answers
 CTAs). Leads and scores are stored in **Supabase**; **Kit** handles lead
 segmentation and the email sequence.
 
-Built on the **JobHackers.Global** design system (Poppins/Roboto, red `#c2001f`,
-soft radii, red-glow CTAs).
+Built on the **JobHackers.Global / AI Dojo** design system (Poppins/Roboto, red
+`#c2001f`, soft radii, red-glow CTAs).
 
 ---
 
@@ -15,8 +15,9 @@ soft radii, red-glow CTAs).
 
 - **Vite + React + TypeScript** SPA → deploys to **Vercel**
 - **Vercel serverless functions** (`/api/*`) — hold every secret (Supabase secret
-  key, Kit key, admin password). Nothing sensitive reaches the browser.
-- **Supabase** — `leads`, `submissions`, and editable `site_content`
+  key, Kit key). Nothing sensitive reaches the browser.
+- **Supabase** — `leads`, `submissions`, editable `site_content`, and **Supabase
+  Auth** for the admin login
 - **Kit (ConvertKit)** — subscriber custom fields + tags + automations
 - **jsPDF + html2canvas** — the downloadable report
 
@@ -27,11 +28,11 @@ soft radii, red-glow CTAs).
 | `/` | Landing page (all copy is admin-editable) |
 | `/quiz` | Lead form, then one question at a time |
 | `/results/:id` | Tier, benchmark chart, biggest opportunity, recs, PDF download |
-| `/admin` | Login + dashboard + content/question editor |
+| `/admin` | **Private, unlinked** route — Supabase Auth login + dashboard + editor |
 
 ---
 
-## Setup (3 steps)
+## Setup
 
 ### 1. Create the database tables (one time)
 Open **Supabase → SQL Editor → New query**, paste the contents of
@@ -42,6 +43,15 @@ node scripts/check-db.mjs
 ```
 
 Default site/quiz content auto-seeds the first time the app loads.
+
+### 1b. Create the admin user (one time) — already done ✅
+```bash
+node scripts/setup-admin.mjs
+```
+Creates a Supabase Auth user from `ADMIN_EMAIL` / `ADMIN_PASSWORD` with
+`app_metadata.role = "admin"`. Admin auth is handled by **Supabase Auth** — sign
+in at `/admin` (an unlinked, private route). The serverless endpoints verify the
+Supabase JWT and authorize on `role = admin` OR an `ADMIN_EMAIL` allowlist match.
 
 ### 2. Provision Kit (one time) — already done ✅
 ```bash
@@ -58,7 +68,8 @@ vercel dev          # runs the SPA + /api functions together (recommended)
 ```
 
 Env lives in [`.env.local`](.env.local) (gitignored). On Vercel, add every
-**non-`VITE_`** var under **Project → Settings → Environment Variables**.
+**non-`VITE_`** var under **Project → Settings → Environment Variables** (and the
+two `VITE_SUPABASE_*` so the admin login works in the browser).
 
 ---
 
@@ -83,6 +94,12 @@ The logic lives in [`shared/scoring.ts`](shared/scoring.ts) and is covered by
 npx esbuild test/scoring.test.ts --bundle --platform=node --format=esm --outfile=/tmp/t.mjs && node /tmp/t.mjs
 ```
 
+Server-side smoke test (content + Supabase Auth + Kit):
+
+```bash
+npx esbuild test/server-smoke.ts --bundle --platform=node --format=esm --packages=external --outfile=/tmp/s.mjs && node /tmp/s.mjs
+```
+
 ## Kit data flow
 
 - **On lead capture (before Q1):** upsert subscriber + tags `Source: AI Readiness
@@ -91,27 +108,28 @@ npx esbuild test/scoring.test.ts --bundle --platform=node --format=esm --outfile
   `ai_overall_tier`, `lowest_category`, `report_url`, etc.; add `Scorecard
   Completed` + the one `Tier:` tag + the one `Focus:` tag.
 
-Build these in **Kit → Automations → Visual automations**:
-1. **Results delivery** — trigger `Scorecard Completed` → send Email 0 → enter the
-   nurture track based on the `Tier:` tag.
-2. **Abandonment** — trigger `Scorecard Started` → wait 2h → if not `Scorecard
-   Completed`, send the abandon email.
-3. **Nurture branching** — Track A (Aware/Engaged), Track B (Enabled/First).
-
-Email drafts + tokens are in `AI-Readiness-Scorecard-Design.md` §10.
+Full automation + email build plan: [`kit-automations.md`](kit-automations.md).
+The 11 emails are also created as **draft broadcasts** in Kit via
+[`scripts/create-broadcasts.mjs`](scripts/create-broadcasts.mjs).
 
 ## Admin
 
-Go to `/admin`, sign in with `ADMIN_EMAIL` / `ADMIN_PASSWORD`. You can edit:
-landing copy, hero metrics, credibility, pillars, the lead form, **every question
-and answer (and points)**, results copy, tiers, and per-category recommendations.
+`/admin` is a **private, unlinked route** (not in the footer/nav). Sign in with the
+Supabase Auth admin user (`ADMIN_EMAIL` / `ADMIN_PASSWORD`). You can edit: landing
+copy, hero metrics, credibility, pillars, the lead form, **every question and
+answer (and points)**, results copy, tiers, and per-category recommendations.
 Saving writes to `site_content`; the live site reads it immediately. The dashboard
 shows lead/completion stats and recent submissions.
+
+To add more admins: create the user in Supabase Auth and either set
+`app_metadata.role = "admin"` or add their email to the `ADMIN_EMAIL` allowlist
+(comma-separated).
 
 ## Security notes
 
 - `site_content` is publicly readable (copy only); `leads` + `submissions` have no
-  anon access and are reached only via the service-role key inside `/api`.
-- Admin endpoints require a signed (HMAC) session token.
+  anon access and are reached only via the secret (service-role) key inside `/api`.
+- Admin endpoints verify the **Supabase Auth JWT** and require an admin role /
+  allowlisted email.
 - The Kit and Supabase secret keys were shared in plain text — consider **rotating
   them** once you've confirmed everything works.

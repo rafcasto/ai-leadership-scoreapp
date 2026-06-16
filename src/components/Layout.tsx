@@ -35,7 +35,6 @@ export function Footer({ content }: { content: SiteContent }) {
         </div>
         <div className="site-footer__bottom">
           <span>© {year} {content.meta.brandName}. {content.meta.footerNote}</span>
-          <Link to="/admin">Admin</Link>
         </div>
       </div>
     </footer>

@@ -3,7 +3,7 @@ import { admin } from "../_lib/supabase";
 
 // GET /api/admin/submissions → recent submissions + headline stats (admin only)
 export default async function handler(req: any, res: any) {
-  if (!requireAdmin(req, res)) return;
+  if (!(await requireAdmin(req, res))) return;
   if (req.method !== "GET") {
     res.status(405).json({ error: "Method not allowed" });
     return;

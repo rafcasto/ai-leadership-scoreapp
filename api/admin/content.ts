@@ -5,7 +5,7 @@ import type { SiteContent } from "../../shared/types";
 // GET  /api/admin/content → full editable content (admin only)
 // PUT  /api/admin/content { content } → save (admin only)
 export default async function handler(req: any, res: any) {
-  if (!requireAdmin(req, res)) return;
+  if (!(await requireAdmin(req, res))) return;
 
   if (req.method === "GET") {
     try {

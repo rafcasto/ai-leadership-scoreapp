@@ -1,21 +1,40 @@
 import { useEffect, useState } from "react";
+import type { Session } from "@supabase/supabase-js";
 import { api, AdminStats, AdminSubmissionRow } from "../lib/api";
+import { supabase, getAccessToken } from "../lib/supabaseClient";
 import type { SiteContent } from "../../shared/types";
 
-const TOKEN_KEY = "ai_scorecard_admin_token";
-
-export default function Admin() {
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY));
-  const [name, setName] = useState<string>("");
-
-  if (!token) {
-    return <Login onLogin={(t, n) => { localStorage.setItem(TOKEN_KEY, t); setToken(t); setName(n); }} />;
-  }
-  return <Dashboard token={token} name={name} onLogout={() => { localStorage.removeItem(TOKEN_KEY); setToken(null); }} />;
+// Resolve a fresh Supabase access token, then call an admin API method with it.
+async function withToken<T>(fn: (token: string) => Promise<T>): Promise<T> {
+  const t = await getAccessToken();
+  if (!t) throw new Error("Your session expired. Please sign in again.");
+  return fn(t);
 }
 
-/* ---------------- Login ---------------- */
-function Login({ onLogin }: { onLogin: (token: string, name: string) => void }) {
+export default function Admin() {
+  // undefined = still checking session; null = signed out; Session = signed in
+  const [session, setSession] = useState<Session | null | undefined>(undefined);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    const { data } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
+    return () => data.subscription.unsubscribe();
+  }, []);
+
+  if (session === undefined) {
+    return <div className="admin-shell" style={{ minHeight: "100vh" }}><div className="spinner" /></div>;
+  }
+  if (!session) return <Login />;
+  return (
+    <Dashboard
+      email={session.user.email || ""}
+      onLogout={() => supabase.auth.signOut()}
+    />
+  );
+}
+
+/* ---------------- Login (Supabase Auth) ---------------- */
+function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState<string | null>(null);
@@ -24,10 +43,9 @@ function Login({ onLogin }: { onLogin: (token: string, name: string) => void }) 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true); setErr(null);
-    try {
-      const { token, name } = await api.adminLogin(email, password);
-      onLogin(token, name);
-    } catch (e: any) { setErr(e.message); } finally { setBusy(false); }
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) { setErr(error.message); setBusy(false); }
+    // on success, onAuthStateChange swaps the view
   };
 
   return (
@@ -35,15 +53,17 @@ function Login({ onLogin }: { onLogin: (token: string, name: string) => void }) 
       <form className="admin-card" style={{ width: 380 }} onSubmit={submit}>
         <img src="/brand/logo-jobhackers.png" alt="" style={{ height: 30, marginBottom: 18 }} />
         <h3 style={{ marginBottom: 6 }}>Scorecard Admin</h3>
-        <p className="muted" style={{ fontSize: 14, marginBottom: 18 }}>Sign in to edit copy, questions, and view results.</p>
+        <p className="muted" style={{ fontSize: 14, marginBottom: 18 }}>
+          Sign in with your Supabase admin account to edit copy, questions, and view results.
+        </p>
         {err && <div className="toast toast--err" style={{ marginBottom: 12 }}>{err}</div>}
         <div className="admin-field">
           <label>Email</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoFocus />
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoFocus autoComplete="username" />
         </div>
         <div className="admin-field">
           <label>Password</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
         </div>
         <button className="btn btn--primary btn--block" disabled={busy}>{busy ? "Signing in…" : "Sign in"}</button>
       </form>
@@ -54,20 +74,18 @@ function Login({ onLogin }: { onLogin: (token: string, name: string) => void }) 
 /* ---------------- Dashboard shell ---------------- */
 type Tab = "dashboard" | "site" | "landing" | "lead" | "questions" | "results";
 
-function Dashboard({ token, name, onLogout }: { token: string; name: string; onLogout: () => void }) {
+function Dashboard({ email, onLogout }: { email: string; onLogout: () => void }) {
   const [tab, setTab] = useState<Tab>("dashboard");
   const [content, setContent] = useState<SiteContent | null>(null);
   const [toast, setToast] = useState<{ k: "ok" | "err"; m: string } | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    api.adminGetContent(token).then((r) => setContent(r.content)).catch((e) => {
-      if (String(e.message).includes("401")) onLogout();
-      setToast({ k: "err", m: e.message });
-    });
-  }, [token]);
+    withToken(api.adminGetContent)
+      .then((r) => setContent(r.content))
+      .catch((e) => setToast({ k: "err", m: e.message }));
+  }, []);
 
-  // generic nested setter: set(["landing","h1Pre"], "value")
   const setIn = (path: (string | number)[], value: any) => {
     setContent((prev) => {
       if (!prev) return prev;
@@ -83,7 +101,7 @@ function Dashboard({ token, name, onLogout }: { token: string; name: string; onL
     if (!content) return;
     setSaving(true); setToast(null);
     try {
-      await api.adminSaveContent(token, content);
+      await withToken((t) => api.adminSaveContent(t, content));
       setToast({ k: "ok", m: "Saved. Live site updated." });
     } catch (e: any) { setToast({ k: "err", m: e.message }); } finally { setSaving(false); }
   };
@@ -94,7 +112,7 @@ function Dashboard({ token, name, onLogout }: { token: string; name: string; onL
         <div className="container admin-bar__inner">
           <span className="admin-bar__title">⚙️ Scorecard Admin</span>
           <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-            {name && <span style={{ fontSize: 13, color: "rgba(255,255,255,.7)" }}>{name}</span>}
+            {email && <span style={{ fontSize: 13, color: "rgba(255,255,255,.7)" }}>{email}</span>}
             <a href="/" style={{ color: "#fff", fontSize: 13 }}>View site ↗</a>
             <button className="btn btn--ghost" style={{ color: "#fff" }} onClick={onLogout}>Sign out</button>
           </div>
@@ -110,7 +128,7 @@ function Dashboard({ token, name, onLogout }: { token: string; name: string; onL
           ))}
         </div>
 
-        {tab === "dashboard" && <DashboardTab token={token} />}
+        {tab === "dashboard" && <DashboardTab />}
 
         {tab !== "dashboard" && !content && <div className="spinner" />}
 
@@ -260,7 +278,7 @@ function QuestionsTab({ content, setIn }: { content: SiteContent; setIn: SetIn }
           {q.help !== undefined && (
             <Text label="Help text" value={q.help || ""} onChange={(v) => setIn(["quiz", "questions", qi, "help"], v)} />
           )}
-          <label className="admin-field" style={{ marginBottom: 6 }}><label>Answers</label></label>
+          <div className="admin-field" style={{ marginBottom: 6 }}><label>Answers</label></div>
           {q.options.map((o, oi) => (
             <div className="admin-answer-row" key={o.id}>
               <input value={o.label} onChange={(e) => setIn(["quiz", "questions", qi, "options", oi, "label"], e.target.value)} />
@@ -328,14 +346,16 @@ function ResultsTab({ content, setIn }: { content: SiteContent; setIn: SetIn }) 
 }
 
 /* ---------------- Dashboard tab ---------------- */
-function DashboardTab({ token }: { token: string }) {
+function DashboardTab() {
   const [rows, setRows] = useState<AdminSubmissionRow[] | null>(null);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
-    api.adminSubmissions(token).then((r) => { setRows(r.submissions); setStats(r.stats); }).catch((e) => setErr(e.message));
-  }, [token]);
+    withToken(api.adminSubmissions)
+      .then((r) => { setRows(r.submissions); setStats(r.stats); })
+      .catch((e) => setErr(e.message));
+  }, []);
 
   if (err) return <div className="toast toast--err">{err}</div>;
   if (!rows || !stats) return <div className="spinner" />;

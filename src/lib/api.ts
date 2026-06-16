@@ -34,13 +34,7 @@ export const api = {
 
   getBenchmark: () => jget<{ benchmark: Benchmark }>("/api/benchmark"),
 
-  // ---- admin ----
-  adminLogin: (email: string, password: string) =>
-    jget<{ token: string; name: string }>("/api/admin/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-    }),
-
+  // ---- admin (token = Supabase Auth access token) ----
   adminGetContent: (token: string) =>
     jget<{ content: SiteContent }>("/api/admin/content", {
       headers: { Authorization: `Bearer ${token}` },
