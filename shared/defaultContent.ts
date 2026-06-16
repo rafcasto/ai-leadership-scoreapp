@@ -29,9 +29,9 @@ export const defaultContent: SiteContent = {
     metricCLabel: "to your report",
     credEyebrow: "Why trust this",
     credQuote:
-      "“AI won't replace humans — but humans with AI will replace humans without AI.”",
+      "“AI doesn’t transform a business — the leaders who know how to deploy it do.”",
     credAttribution:
-      "Based on the AI Maturity framework from Harvard Business Impact and HBS Professor Karim Lakhani's work on AI adoption.",
+      "Grounded in the AI-maturity research from Harvard Business Impact and HBS Professor Karim Lakhani — adapted for the senior leaders accountable for turning AI into measurable productivity gains.",
     pillarsEyebrow: "The four building blocks",
     pillarsTitle: "What we measure",
     pillarsLede:
